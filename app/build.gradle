@@ -1,13 +1,21 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('masmp-keystore.jks')
+            keyAlias 'masmp'
+            keyPassword 'abcD1234'
+            storePassword 'abcD1234'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.sahdeepsingh.Bop"
+        applicationId "masysdio.masplayerpre"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 13
-        versionName "1.2.1"
+        versionCode 5
+        versionName "1.0.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
@@ -19,6 +27,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -55,4 +64,6 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'androidx.palette:palette:1.0.0'
 
+    //google billing
+//    implementation 'com.android.billingclient:billing:1.2.2'
 }

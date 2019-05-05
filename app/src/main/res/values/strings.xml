@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Bop-MusicPlayer</string>
-    <string name="app_name_short">Bop</string>
+    <string name="app_name">Mas-MusicPlayer</string>
+    <string name="app_name_short">Mas</string>
     <string name="cancel">Cancel</string>
     <string name="now_playing">Now Playing</string>
     <string name="settings">Settings</string>
@@ -153,10 +153,13 @@
     <string name="year">Year</string>
     <string name="location">Location</string>
     <string name="reset">Reset</string>
+    <string name="ads">Ads</string>
     <string name="theme">Theme</string>
     <string name="appearance">Appearance</string>
+    <string name="billing">Billing</string>
     <string name="mode">Mode</string>
     <string name="day_night">Day/Night</string>
+    <string name="turn_ads_off">No ads</string>
     <string name="choose_color">Choose Color</string>
     <string name="general">General</string>
     <string name="headphones_actions">Headphones Actions</string>

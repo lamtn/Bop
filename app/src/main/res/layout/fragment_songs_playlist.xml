@@ -54,7 +54,7 @@
 
         </LinearLayout>
 
-        <com.sahdeepsingh.Bop.Visualizers.barVisuals
+        <masysdio.masplayerpre.Visualizers.barVisuals
             android:id="@+id/barvisuals"
             android:layout_width="30dp"
             android:layout_height="30dp"

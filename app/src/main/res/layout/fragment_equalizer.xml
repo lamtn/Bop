@@ -261,14 +261,14 @@
             android:background="#777777"
             android:orientation="horizontal">
 
-            <com.sahdeepsingh.Bop.equalizer.AnalogController
+            <masysdio.masplayerpre.equalizer.AnalogController
                 android:id="@+id/controllerBass"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="#000000" />
 
-            <com.sahdeepsingh.Bop.equalizer.AnalogController
+            <masysdio.masplayerpre.equalizer.AnalogController
                 android:id="@+id/controller3D"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

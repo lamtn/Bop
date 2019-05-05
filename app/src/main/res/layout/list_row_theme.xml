@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <com.sahdeepsingh.Bop.CustomViews.ColorView
+    <masysdio.masplayerpre.CustomViews.ColorView
         android:id="@+id/themeView"
         android:layout_width="56dp"
         android:layout_height="56dp"

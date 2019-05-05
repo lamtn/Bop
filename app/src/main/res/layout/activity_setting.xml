@@ -40,6 +40,74 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="7dp"
+                        android:text="@string/billing"
+                        android:textColor="?attr/colorAccent"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:id="@+id/settingsAds"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="15dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="5dp"
+                            android:text="@string/ads"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+
+                        <LinearLayout
+                            android:id="@+id/main_purchase"
+                            android:layout_width="match_parent"
+                            android:visibility="visible"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/tvNoAds"
+                                android:enabled="false"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="5dp"
+                                android:layout_weight="1"
+                                android:text="@string/turn_ads_off"
+                                android:textSize="15sp" />
+
+                            <com.google.android.material.checkbox.MaterialCheckBox
+                                android:id="@+id/cbNoAds"
+                                android:enabled="false"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="7dp" />
+                        </LinearLayout>
+                        <RelativeLayout
+                            android:id="@+id/wait_purchase"
+                            android:visibility="gone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <ProgressBar
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"/>
+                        </RelativeLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="7dp"
                         android:text="@string/appearance"
                         android:textColor="?attr/colorAccent"
                         android:textSize="18sp" />

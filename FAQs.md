@@ -134,7 +134,7 @@ Bop music player is an Android software meaning it is only available to users us
 
 18.  **Where can I download Bop music player?**
 
-The latest release of Bop music player can be downloaded from [google playstore](https://play.google.com/store/apps/details?id=com.sahdeepsingh.Bop&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1). You can also download it from [F-droid](https://f-droid.org/en/packages/com.sahdeepsingh.Bop). To view the latest releases and all releases of Bop music player, click [here](https://github.com/iamSahdeep/Bop/releases)
+The latest release of Bop music player can be downloaded from [google playstore](https://play.google.com/store/apps/details?id=masplayerpre&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1). You can also download it from [F-droid](https://f-droid.org/en/packages/masplayerpre). To view the latest releases and all releases of Bop music player, click [here](https://github.com/iamSahdeep/Bop/releases)
 
 ---
 

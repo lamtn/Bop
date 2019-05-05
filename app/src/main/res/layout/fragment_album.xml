@@ -50,14 +50,14 @@
         <androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/list"
-            android:name="com.sahdeepsingh.Bop.fragments.FragmentAlbum"
+            android:name="masysdio.masplayer.fragments.FragmentAlbum"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:clipToPadding="false"
             android:paddingBottom="100dp"
-            tools:context=".fragments.FragmentAlbum"
+            tools:context="masysdio.masplayerpre.fragments.FragmentAlbum"
             tools:listitem="@layout/fragment_album_item" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
