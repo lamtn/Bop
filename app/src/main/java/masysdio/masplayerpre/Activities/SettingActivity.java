@@ -47,18 +47,19 @@ import androidx.recyclerview.widget.RecyclerView;
 public class SettingActivity extends BaseActivity implements AdvancedSettings.OnFragmentInteractionListener, IabBroadcastReceiver.IabBroadcastListener {
     static final String TAG = "SettingActivity";
     static final String SKU_NO_ADS = "no_ads";
+    static final String SKU_NO_ADS_ONE_DAY = "no_ads_one_day";
     static final String SKU_TEST_PURCHASED = "android.test.purchased";
     static final String SKU_TEST_CANCELED = "android.test.canceled";
     static final String SKU_TEST_ITEM_UNAVAILABLE = "android.test.item_unavailable";
-    static final String SKU_TO_BUY = SKU_NO_ADS;
+    //    static final String SKU_TO_BUY = SKU_NO_ADS;
     // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
 
     public static List<Theme> mThemeList = new ArrayList<>();
     public static int selectedTheme = 0;
-    TextView tvNoAds;
+    TextView tvNoAds, tvNoAdsOneDay;
     LinearLayout mode, theme;
-    MaterialCheckBox pauseHeadphoneUnplugged, resumeHeadphonePlugged, headphoneControl, saveRecent, savePlaylist, saveCount, cbNoAds;
+    MaterialCheckBox pauseHeadphoneUnplugged, resumeHeadphonePlugged, headphoneControl, saveRecent, savePlaylist, saveCount, cbNoAds, cbNoAdsOneDay;
     LinearLayout llBottomSheet;
     private RecyclerView mRecyclerView;
     private ThemeAdapter mAdapter;
@@ -66,6 +67,7 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
 
     // Does the user have the premium upgrade?
     private boolean mIsNoAds = false;
+    private boolean mIsNoAdsOneDay = false;
     // The helper object
     IabHelper mHelper;
 
@@ -102,6 +104,9 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
 
         tvNoAds = findViewById(R.id.tvNoAds);
         cbNoAds = findViewById(R.id.cbNoAds);
+
+        tvNoAdsOneDay = findViewById(R.id.tvNoAdsOneDay);
+        cbNoAdsOneDay = findViewById(R.id.cbNoAdsOneDay);
 
         setupCheckBoxes();
         setListeners();
@@ -252,6 +257,8 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
         saveRecent.setChecked(Main.settings.get("saveRecent", true));
         saveCount.setChecked(Main.settings.get("saveCount", true));
         savePlaylist.setChecked(Main.settings.get("savePlaylist", true));
+        cbNoAds.setChecked(Main.settings.get("saveNoAds", false));
+        cbNoAdsOneDay.setChecked(Main.settings.get("saveNoAdsOneDay", false));
     }
 
     // User clicked the "No ads" button.
@@ -270,7 +277,30 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
         String payload = "";
 
         try {
-            mHelper.launchPurchaseFlow(this, SKU_TO_BUY, RC_REQUEST,
+            mHelper.launchPurchaseFlow(this, SKU_NO_ADS, RC_REQUEST,
+                    mPurchaseFinishedListener, payload);
+        } catch (IabHelper.IabAsyncInProgressException e) {
+            complain("Error launching purchase flow. Another async operation in progress.");
+            setWaitScreen(false);
+        }
+    }
+
+    public void noAdsOneDayClicked(View arg0) {
+        if (Main.settings.get("saveNoAdsOneDay", false)) {
+            Toast.makeText(this, "You have purchase for no ads one day", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d(TAG, "Upgrade button clicked; launching purchase flow for upgrade.");
+        setWaitScreen(true);
+
+        /* TODO: for security, generate your payload here for verification. See the comments on
+         *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
+         *        an empty string, but on a production app you should carefully generate this. */
+        String payload = "";
+
+        try {
+            mHelper.launchPurchaseFlow(this, SKU_NO_ADS_ONE_DAY, RC_REQUEST,
                     mPurchaseFinishedListener, payload);
         } catch (IabHelper.IabAsyncInProgressException e) {
             complain("Error launching purchase flow. Another async operation in progress.");
@@ -284,6 +314,13 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
             @Override
             public void onClick(View v) {
                 noAdsClicked(v);
+            }
+        });
+
+        tvNoAdsOneDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                noAdsOneDayClicked(v);
             }
         });
 
@@ -663,7 +700,6 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
                         });
                     }
                 });
-
     }
 
     // Callback for when a purchase is finished
@@ -687,15 +723,20 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
 
             Log.d(TAG, "Purchase successful.");
 
-            if (purchase.getSku().equals(SKU_TO_BUY)) {
+            if (purchase.getSku().equals(SKU_NO_ADS)) {
                 // bought the premium upgrade!
-                Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
-                alert("Thank you for upgrading to premium!");
+                Log.d(TAG, "Ads is off. Congratulating user.");
+                alert("Thank you for bill No Ads All Time!");
                 mIsNoAds = true;
                 Main.settings.set("saveNoAds", true);
-                updateUi();
-                setWaitScreen(false);
+            } else if (purchase.getSku().equals(SKU_NO_ADS_ONE_DAY)) {
+                Log.d(TAG, "Ads is off. Congratulating user.");
+                alert("Thank you for bill No Ads One Day!");
+                mIsNoAdsOneDay = true;
+                Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
             }
+            updateUi();
+            setWaitScreen(false);
         }
     };
 
@@ -727,20 +768,64 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
              * verifyDeveloperPayload().
              */
 
-            // Do we have the premium upgrade?
-            Purchase noAdsPurchase = inventory.getPurchase(SKU_TO_BUY);
+            // Do we have the no ads all time?
+            Purchase noAdsPurchase = inventory.getPurchase(SKU_NO_ADS);
             mIsNoAds = (noAdsPurchase != null && verifyDeveloperPayload(noAdsPurchase));
             Log.d(TAG, "User is " + (mIsNoAds ? "PURCHASED NO ADS" : "NOT YET PURCHASE"));
             Main.settings.set("saveNoAds", mIsNoAds);
+
+            // Do we have the no ads one day?
+            Purchase gasPurchase = inventory.getPurchase(SKU_NO_ADS_ONE_DAY);
+            if (gasPurchase != null && verifyDeveloperPayload(gasPurchase)) {
+                mIsNoAdsOneDay = true;
+                Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
+                if (System.currentTimeMillis() - gasPurchase.getPurchaseTime() > 86400000) // more than a day
+                {
+                    Log.d(TAG, "We have no ads one day. Consuming it.");
+                    try {
+                        mHelper.consumeAsync(inventory.getPurchase(SKU_NO_ADS_ONE_DAY), mConsumeFinishedListener);
+                    } catch (IabHelper.IabAsyncInProgressException e) {
+                        complain("Error consuming no ads one day. Another async operation in progress.");
+                    }
+                }
+            }
 
             updateUi();
             Log.d(TAG, "Initial inventory query finished; enabling main UI.");
         }
     };
 
+    // Called when consumption is complete
+    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
+        public void onConsumeFinished(Purchase purchase, IabResult result) {
+            Log.d(TAG, "Consumption finished. Purchase: " + purchase + ", result: " + result);
+
+            // if we were disposed of in the meantime, quit.
+            if (mHelper == null) return;
+            if (result.isSuccess()) {
+                if (purchase.getSku().equals(SKU_NO_ADS_ONE_DAY)) {
+                    // successfully consumed, so we apply the effects of the item in our
+                    // game world's logic, which in our case means filling the gas tank a bit
+                    Log.d(TAG, "Consumption successful. Provisioning.");
+                    alert("No ads one day have expired!");
+                    mIsNoAdsOneDay = false;
+                    Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
+                }
+            } else {
+                complain("Error while consuming: " + result);
+            }
+
+            updateUi();
+            setWaitScreen(false);
+            Log.d(TAG, "End consumption flow.");
+        }
+    };
+
     private void updateUi() {
         tvNoAds.setEnabled(!mIsNoAds);
         cbNoAds.setChecked(mIsNoAds);
+        tvNoAdsOneDay.setEnabled(!mIsNoAds && !mIsNoAdsOneDay);
+        cbNoAdsOneDay.setChecked(mIsNoAds || mIsNoAdsOneDay);
     }
 
     @Override

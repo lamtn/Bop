@@ -159,7 +159,8 @@
     <string name="billing">Billing</string>
     <string name="mode">Mode</string>
     <string name="day_night">Day/Night</string>
-    <string name="turn_ads_off">No ads</string>
+    <string name="turn_ads_off">No ads all time</string>
+    <string name="turn_ads_off_one_day">No ads for one day</string>
     <string name="choose_color">Choose Color</string>
     <string name="general">General</string>
     <string name="headphones_actions">Headphones Actions</string>
