@@ -1,4 +1,4 @@
-# Bop - Music Player [![GitHub release](https://img.shields.io/github/release-pre/iamSahdeep/Bop.svg?style=popout-square)](https://github.com/iamSahdeep/Bop/releases/tag/v1.2) [![Fdroid release](https://img.shields.io/f-droid/v/masplayerpre.svg?style=flat-square)](https://f-droid.org/en/packages/masplayerpre)
+# Mas - Music Player [![GitHub release](https://img.shields.io/github/release-pre/iamSahdeep/Bop.svg?style=popout-square)](https://github.com/iamSahdeep/Bop/releases/tag/v1.2) [![Fdroid release](https://img.shields.io/f-droid/v/masplayerpre.svg?style=flat-square)](https://f-droid.org/en/packages/masplayerpre)
 
 
 [![Build Status](https://travis-ci.org/iamSahdeep/Bop.svg?branch=master)](https://travis-ci.org/iamSahdeep/Bop) [![GitHub All Releases](https://img.shields.io/github/downloads/iamSahdeep/bop/total.svg)](https://github.com/iamSahdeep/Bop/releases) 

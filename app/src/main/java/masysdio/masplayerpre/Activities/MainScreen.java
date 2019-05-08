@@ -160,7 +160,7 @@ public class MainScreen extends BaseActivity implements MediaController.MediaPla
         accountHeader = new AccountHeaderBuilder().withActivity(this)
                 .withSelectionListEnabled(false)
                 .addProfiles(
-                        new ProfileDrawerItem().withName("Bop - Music Player").withIcon(R.mipmap.ic_launcher_round)
+                        new ProfileDrawerItem().withName("Mas - Music Player").withIcon(R.mipmap.ic_launcher_round)
                 ).build();
 
         drawer = new DrawerBuilder()

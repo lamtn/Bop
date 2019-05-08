@@ -154,12 +154,14 @@
     <string name="location">Location</string>
     <string name="reset">Reset</string>
     <string name="ads">Ads</string>
+    <string name="donate">Donate</string>
     <string name="theme">Theme</string>
     <string name="appearance">Appearance</string>
     <string name="billing">Billing</string>
     <string name="mode">Mode</string>
     <string name="day_night">Day/Night</string>
     <string name="turn_ads_off">No ads all time</string>
+    <string name="donate_one_dollar">Donate one dollar</string>
     <string name="turn_ads_off_one_day">No ads for one day</string>
     <string name="choose_color">Choose Color</string>
     <string name="general">General</string>

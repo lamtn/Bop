@@ -144,7 +144,7 @@ XXX
                                 this
 
                                 ,
-                                "Bop - Music Player"
+                                "Mas - Music Player"
 
 
                                 ,

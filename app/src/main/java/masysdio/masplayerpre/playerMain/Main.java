@@ -64,7 +64,7 @@ public class Main {
     public static boolean mainMenuHasNowPlayingItem = false;
 
     // GENERAL PROGRAM INFO
-    public static String applicationName = "Bop - Music Player";
+    public static String applicationName = "Mas - Music Player";
     public static String packageName = "<unknown>";
     public static String versionName = "<unknown>";
     public static int versionCode = -1;

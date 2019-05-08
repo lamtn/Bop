@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -48,6 +49,7 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
     static final String TAG = "SettingActivity";
     static final String SKU_NO_ADS = "no_ads";
     static final String SKU_NO_ADS_ONE_DAY = "no_ads_one_day";
+    static final String SKU_DONATE_ONE_DOLLAR = "donate_one_dollar";
     static final String SKU_TEST_PURCHASED = "android.test.purchased";
     static final String SKU_TEST_CANCELED = "android.test.canceled";
     static final String SKU_TEST_ITEM_UNAVAILABLE = "android.test.item_unavailable";
@@ -61,6 +63,7 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
     LinearLayout mode, theme;
     MaterialCheckBox pauseHeadphoneUnplugged, resumeHeadphonePlugged, headphoneControl, saveRecent, savePlaylist, saveCount, cbNoAds, cbNoAdsOneDay;
     LinearLayout llBottomSheet;
+    Button tvDonateOneDollar;
     private RecyclerView mRecyclerView;
     private ThemeAdapter mAdapter;
     private BottomSheetBehavior mBottomSheetBehavior;
@@ -73,6 +76,7 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
 
     // Provides purchase notification while this app is running
     IabBroadcastReceiver mBroadcastReceiver;
+    boolean isReadyForANewDonate = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +111,8 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
 
         tvNoAdsOneDay = findViewById(R.id.tvNoAdsOneDay);
         cbNoAdsOneDay = findViewById(R.id.cbNoAdsOneDay);
+
+        tvDonateOneDollar = findViewById(R.id.tvDonateOneDollar);
 
         setupCheckBoxes();
         setListeners();
@@ -308,7 +314,34 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
         }
     }
 
+    private void donateOneDollarClicked(View v) {
+        if (!isReadyForANewDonate) {
+            alert("Can not donate this time!");
+            return;
+        }
+        /* TODO: for security, generate your payload here for verification. See the comments on
+         *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
+         *        an empty string, but on a production app you should carefully generate this. */
+        String payload = "";
+
+        try {
+            isReadyForANewDonate = false;
+            mHelper.launchPurchaseFlow(this, SKU_DONATE_ONE_DOLLAR, RC_REQUEST,
+                    mPurchaseFinishedListener, payload);
+        } catch (IabHelper.IabAsyncInProgressException e) {
+            complain("Error launching purchase flow. Another async operation in progress.");
+            setWaitScreen(false);
+        }
+    }
+
     private void setListeners() {
+
+        tvDonateOneDollar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                donateOneDollarClicked(v);
+            }
+        });
 
         tvNoAds.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -409,7 +442,6 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
                 } else {
                     Main.settings.set("savePlaylist", false);
                 }
-
             }
         });
 
@@ -702,124 +734,12 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
                 });
     }
 
-    // Callback for when a purchase is finished
-    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
-        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
-            Log.d(TAG, "Purchase finished: " + result + ", purchase: " + purchase);
-
-            // if we were disposed of in the meantime, quit.
-            if (mHelper == null) return;
-
-            if (result.isFailure()) {
-                complain("Error purchasing: " + result);
-                setWaitScreen(false);
-                return;
-            }
-            if (!verifyDeveloperPayload(purchase)) {
-                complain("Error purchasing. Authenticity verification failed.");
-                setWaitScreen(false);
-                return;
-            }
-
-            Log.d(TAG, "Purchase successful.");
-
-            if (purchase.getSku().equals(SKU_NO_ADS)) {
-                // bought the premium upgrade!
-                Log.d(TAG, "Ads is off. Congratulating user.");
-                alert("Thank you for bill No Ads All Time!");
-                mIsNoAds = true;
-                Main.settings.set("saveNoAds", true);
-            } else if (purchase.getSku().equals(SKU_NO_ADS_ONE_DAY)) {
-                Log.d(TAG, "Ads is off. Congratulating user.");
-                alert("Thank you for bill No Ads One Day!");
-                mIsNoAdsOneDay = true;
-                Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
-            }
-            updateUi();
-            setWaitScreen(false);
-        }
-    };
-
     // Enables or disables the "please wait" screen.
     void setWaitScreen(boolean set) {
         findViewById(R.id.main_purchase).setVisibility(set ? View.GONE : View.VISIBLE);
         findViewById(R.id.wait_purchase).setVisibility(set ? View.VISIBLE : View.GONE);
     }
 
-    // Listener that's called when we finish querying the items and subscriptions we own
-    IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
-        public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
-            Log.d(TAG, "Query inventory finished.");
-
-            // Have we been disposed of in the meantime? If so, quit.
-            if (mHelper == null) return;
-
-            // Is it a failure?
-            if (result.isFailure()) {
-                complain("Failed to query inventory: " + result);
-                return;
-            }
-
-            Log.d(TAG, "Query inventory was successful.");
-
-            /*
-             * Check for items we own. Notice that for each purchase, we check
-             * the developer payload to see if it's correct! See
-             * verifyDeveloperPayload().
-             */
-
-            // Do we have the no ads all time?
-            Purchase noAdsPurchase = inventory.getPurchase(SKU_NO_ADS);
-            mIsNoAds = (noAdsPurchase != null && verifyDeveloperPayload(noAdsPurchase));
-            Log.d(TAG, "User is " + (mIsNoAds ? "PURCHASED NO ADS" : "NOT YET PURCHASE"));
-            Main.settings.set("saveNoAds", mIsNoAds);
-
-            // Do we have the no ads one day?
-            Purchase gasPurchase = inventory.getPurchase(SKU_NO_ADS_ONE_DAY);
-            if (gasPurchase != null && verifyDeveloperPayload(gasPurchase)) {
-                mIsNoAdsOneDay = true;
-                Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
-                if (System.currentTimeMillis() - gasPurchase.getPurchaseTime() > 86400000) // more than a day
-                {
-                    Log.d(TAG, "We have no ads one day. Consuming it.");
-                    try {
-                        mHelper.consumeAsync(inventory.getPurchase(SKU_NO_ADS_ONE_DAY), mConsumeFinishedListener);
-                    } catch (IabHelper.IabAsyncInProgressException e) {
-                        complain("Error consuming no ads one day. Another async operation in progress.");
-                    }
-                }
-            }
-
-            updateUi();
-            Log.d(TAG, "Initial inventory query finished; enabling main UI.");
-        }
-    };
-
-    // Called when consumption is complete
-    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
-        public void onConsumeFinished(Purchase purchase, IabResult result) {
-            Log.d(TAG, "Consumption finished. Purchase: " + purchase + ", result: " + result);
-
-            // if we were disposed of in the meantime, quit.
-            if (mHelper == null) return;
-            if (result.isSuccess()) {
-                if (purchase.getSku().equals(SKU_NO_ADS_ONE_DAY)) {
-                    // successfully consumed, so we apply the effects of the item in our
-                    // game world's logic, which in our case means filling the gas tank a bit
-                    Log.d(TAG, "Consumption successful. Provisioning.");
-                    alert("No ads one day have expired!");
-                    mIsNoAdsOneDay = false;
-                    Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
-                }
-            } else {
-                complain("Error while consuming: " + result);
-            }
-
-            updateUi();
-            setWaitScreen(false);
-            Log.d(TAG, "End consumption flow.");
-        }
-    };
 
     private void updateUi() {
         tvNoAds.setEnabled(!mIsNoAds);
@@ -886,4 +806,140 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
             complain("Error querying inventory. Another async operation in progress.");
         }
     }
+
+    // Listener that's called when we finish querying the items and subscriptions we own
+    IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
+        public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+            Log.d(TAG, "Query inventory finished.");
+
+            // Have we been disposed of in the meantime? If so, quit.
+            if (mHelper == null) return;
+
+            // Is it a failure?
+            if (result.isFailure()) {
+                complain("Failed to query inventory: " + result);
+                return;
+            }
+
+            Log.d(TAG, "Query inventory was successful.");
+
+            /*
+             * Check for items we own. Notice that for each purchase, we check
+             * the developer payload to see if it's correct! See
+             * verifyDeveloperPayload().
+             */
+
+            // Do we have the no ads all time?
+            if (inventory.hasPurchase(SKU_NO_ADS)) {
+                Purchase noAdsPurchase = inventory.getPurchase(SKU_NO_ADS);
+                mIsNoAds = (noAdsPurchase != null && verifyDeveloperPayload(noAdsPurchase));
+                Log.d(TAG, "User is " + (mIsNoAds ? "PURCHASED NO ADS" : "NOT YET PURCHASE"));
+                Main.settings.set("saveNoAds", mIsNoAds);
+            } else if (inventory.hasPurchase(SKU_NO_ADS_ONE_DAY)) {
+                // Do we have the no ads one day?
+                Purchase gasPurchase = inventory.getPurchase(SKU_NO_ADS_ONE_DAY);
+                if (gasPurchase != null && verifyDeveloperPayload(gasPurchase)) {
+                    mIsNoAdsOneDay = true;
+                    Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
+                    if (System.currentTimeMillis() - gasPurchase.getPurchaseTime() > 86400000) // more than a day
+                    {
+                        Log.d(TAG, "We have no ads one day. Consuming it.");
+                        try {
+                            mHelper.consumeAsync(inventory.getPurchase(SKU_NO_ADS_ONE_DAY), mConsumeFinishedListener);
+                        } catch (IabHelper.IabAsyncInProgressException e) {
+                            complain("Error consuming no ads one day. Another async operation in progress.");
+                        }
+                    }
+                }
+            } else if (inventory.hasPurchase(SKU_DONATE_ONE_DOLLAR)) {
+                isReadyForANewDonate = false;
+                Purchase donatePurchase = inventory.getPurchase(SKU_DONATE_ONE_DOLLAR);
+                if (donatePurchase != null && verifyDeveloperPayload(donatePurchase)) {
+                    try {
+                        mHelper.consumeAsync(inventory.getPurchase(SKU_DONATE_ONE_DOLLAR), mConsumeFinishedListener);
+                    } catch (IabHelper.IabAsyncInProgressException e) {
+                        complain("Can not donate this time.");
+                    }
+                }
+            }
+
+            updateUi();
+            Log.d(TAG, "Initial inventory query finished; enabling main UI.");
+        }
+    };
+    // Callback for when a purchase is finished
+    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener = new IabHelper.OnIabPurchaseFinishedListener() {
+        public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+            Log.d(TAG, "Purchase finished: " + result + ", purchase: " + purchase);
+
+            // if we were disposed of in the meantime, quit.
+            if (mHelper == null) return;
+
+            if (result.isFailure()) {
+                complain("Error purchasing: " + result);
+                setWaitScreen(false);
+                isReadyForANewDonate = true;
+                return;
+            }
+            if (!verifyDeveloperPayload(purchase)) {
+                complain("Error purchasing. Authenticity verification failed.");
+                setWaitScreen(false);
+                isReadyForANewDonate = true;
+                return;
+            }
+
+            Log.d(TAG, "Purchase successful.");
+
+            if (purchase.getSku().equals(SKU_NO_ADS)) {
+                // bought the premium upgrade!
+                Log.d(TAG, "Ads is off. Congratulating user.");
+                alert("Thank you for bill No Ads All Time!");
+                mIsNoAds = true;
+                Main.settings.set("saveNoAds", true);
+            } else if (purchase.getSku().equals(SKU_NO_ADS_ONE_DAY)) {
+                Log.d(TAG, "Ads is off. Congratulating user.");
+                alert("Thank you for bill No Ads One Day!");
+                mIsNoAdsOneDay = true;
+                Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
+            } else if (purchase.getSku().equals(SKU_DONATE_ONE_DOLLAR)) {
+                Log.d(TAG, "Donate one dollar success.");
+                alert("Thank you for contributions!");
+                try {
+                    mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+                } catch (IabHelper.IabAsyncInProgressException e) {
+                    complain("Cn not donate this time.");
+                }
+            }
+            updateUi();
+            setWaitScreen(false);
+        }
+    };
+
+    // Called when consumption is complete
+    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener = new IabHelper.OnConsumeFinishedListener() {
+        public void onConsumeFinished(Purchase purchase, IabResult result) {
+            Log.d(TAG, "Consumption finished. Purchase: " + purchase + ", result: " + result);
+
+            // if we were disposed of in the meantime, quit.
+            if (mHelper == null) return;
+            if (result.isSuccess()) {
+                if (purchase.getSku().equals(SKU_NO_ADS_ONE_DAY)) {
+                    // successfully consumed, so we apply the effects of the item in our
+                    // game world's logic, which in our case means filling the gas tank a bit
+                    Log.d(TAG, "Consumption successful. Provisioning.");
+                    alert("No ads one day have expired!");
+                    mIsNoAdsOneDay = false;
+                    Main.settings.set("saveNoAdsOneDay", mIsNoAdsOneDay);
+                } else if (purchase.getSku().equals(SKU_DONATE_ONE_DOLLAR)) {
+                    isReadyForANewDonate = true;
+                }
+            } else {
+                complain("Error while consuming: " + result);
+            }
+
+            updateUi();
+            setWaitScreen(false);
+            Log.d(TAG, "End consumption flow.");
+        }
+    };
 }
