@@ -904,11 +904,11 @@ public class SettingActivity extends BaseActivity implements AdvancedSettings.On
             } else if (purchase.getSku().equals(SKU_DONATE_ONE_DOLLAR)) {
                 Log.d(TAG, "Donate one dollar success.");
                 alert("Thank you for contributions!");
-                try {
-                    mHelper.consumeAsync(purchase, mConsumeFinishedListener);
-                } catch (IabHelper.IabAsyncInProgressException e) {
-                    complain("Cn not donate this time.");
-                }
+//                try {
+//                    mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+//                } catch (IabHelper.IabAsyncInProgressException e) {
+//                    complain("Cn not donate this time.");
+//                }
             }
             updateUi();
             setWaitScreen(false);
