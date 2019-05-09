@@ -145,7 +145,6 @@
                     android:layout_gravity="center"
                     android:background="@drawable/donation_button"
                     android:layout_weight="1"
-                    android:enabled="false"
                     android:textStyle="bold"
                     android:text="@string/donate_one_dollar"
                     android:textSize="12sp" />
